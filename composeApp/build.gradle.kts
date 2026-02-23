@@ -83,3 +83,7 @@ compose.desktop {
         }
     }
 }
+
+tasks.register("jvmRun") {
+    dependsOn(":composeApp:run")
+}
