@@ -9,9 +9,11 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import io.github.jan.supabase.SupabaseClient
 
 fun main() {
-    embeddedServer(Netty, port = SERVER_PORT, host = "0.0.0.0", module = Application::module)
+    val port = System.getenv("PORT")?.toIntOrNull() ?: 8080
+    embeddedServer(Netty, port = port, host = "0.0.0.0", module = Application::module)
         .start(wait = true)
 }
 
@@ -22,9 +24,17 @@ data class HealthResponse(
 )
 
 fun Application.module() {
-    // Database initialization
-    DatabaseFactory.init()
+    // Configurações do Supabase (obtidas via JVM args definidos no build.gradle.kts)
+    val supabaseUrl = System.getProperty("SUPABASE_URL")
+    val supabaseKey = System.getProperty("SUPABASE_KEY")
+    
+    var supabase: SupabaseClient? = null
+    
+    if (supabaseUrl != null && supabaseKey != null) {
+        supabase = createAppSupabaseClient(supabaseUrl, supabaseKey)
+    }
 
+    // Pipeline configuration
     install(ContentNegotiation) {
         json(Json {
             prettyPrint = true
@@ -32,12 +42,13 @@ fun Application.module() {
             ignoreUnknownKeys = true
         })
     }
-
+    
+    // Core routes
     routing {
         get("/") {
             call.respondText("API LDDM/PDM (mergeskillskmp). Tente acessar /api/health")
         }
-
+        
         get("/api/health") {
             call.respond(
                 HealthResponse(
