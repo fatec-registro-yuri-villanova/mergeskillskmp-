@@ -22,6 +22,9 @@ data class HealthResponse(
 )
 
 fun Application.module() {
+    // Database initialization
+    DatabaseFactory.init()
+
     install(ContentNegotiation) {
         json(Json {
             prettyPrint = true
