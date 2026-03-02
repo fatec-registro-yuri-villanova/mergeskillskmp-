@@ -9,6 +9,7 @@ kotlin {
     
     sourceSets {
         commonMain.dependencies {
+            api(libs.kotlinx.datetime)
             api(libs.ktor.client.core)
             implementation(libs.ktor.client.cio)
             api(libs.ktor.client.content.negotiation)
