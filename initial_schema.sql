@@ -1,53 +1,66 @@
 -- Initial Schema for Merge Skills
--- Week 03 LDM Class
+-- Based on Technical Spec (Section 2)
 
--- 1. Profiles (linked to Supabase Auth)
-CREATE TABLE IF NOT EXISTS profiles (
+-- 1. Users (Auth Profile & Gamification)
+CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY,
+    username TEXT UNIQUE NOT NULL,
     email TEXT UNIQUE NOT NULL,
-    full_name TEXT,
-    avatar_url TEXT,
+    password TEXT,
+    streak_count INT DEFAULT 0,
+    streak_freezes INT DEFAULT 0,
+    last_activity_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 2. Courses
+-- 2. Courses (Learning Tracks)
 CREATE TABLE IF NOT EXISTS courses (
     id SERIAL PRIMARY KEY,
     title TEXT NOT NULL,
     description TEXT,
-    image_url TEXT,
+    icon TEXT,
+    color TEXT,
+    total_lessons INT DEFAULT 0,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 3. Lessons
+-- 3. Lessons (Modules)
 CREATE TABLE IF NOT EXISTS lessons (
     id SERIAL PRIMARY KEY,
     course_id INT REFERENCES courses(id) ON DELETE CASCADE,
     title TEXT NOT NULL,
-    content TEXT, -- Markdown or JSON content
+    description TEXT,
     "order" INT DEFAULT 0,
-    video_url TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 4. Questions (for Quizzes/Simulados)
+-- 4. Questions (Quiz/Simulados)
 CREATE TABLE IF NOT EXISTS questions (
     id SERIAL PRIMARY KEY,
     lesson_id INT REFERENCES lessons(id) ON DELETE CASCADE,
-    question_text TEXT NOT NULL,
-    options JSONB NOT NULL, -- Array of strings
-    correct_option_index INT NOT NULL,
-    explanation TEXT,
+    question TEXT NOT NULL,
+    code TEXT,
+    options JSONB NOT NULL,
+    correct_answer INT NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 5. User Progress (Attempts/Grades)
-CREATE TABLE IF NOT EXISTS user_progress (
+-- 5. Lesson Progress (Tracker)
+CREATE TABLE IF NOT EXISTS lesson_progress (
     id SERIAL PRIMARY KEY,
-    user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
     lesson_id INT REFERENCES lessons(id) ON DELETE CASCADE,
-    score FLOAT DEFAULT 0,
-    completed BOOLEAN DEFAULT FALSE,
-    last_attempt TIMESTAMPTZ DEFAULT NOW()
+    is_completed BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 6. Question Attempts (History)
+CREATE TABLE IF NOT EXISTS question_attempts (
+    id SERIAL PRIMARY KEY,
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    question_id INT REFERENCES questions(id) ON DELETE CASCADE,
+    is_correct BOOLEAN NOT NULL,
+    selected_option INT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
 );

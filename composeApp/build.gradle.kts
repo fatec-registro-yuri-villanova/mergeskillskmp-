@@ -23,6 +23,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(projects.shared)
+                implementation(projects.designsystem)
                 implementation(libs.kotlinx.coroutines.core)
                 
                 // Compose Multiplatform
