@@ -1,10 +1,19 @@
-
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.androidLibrary)
 }
 
 kotlin {
+    jvmToolchain(21)
+    androidTarget {
+        compilations.all {
+            kotlinOptions {
+                jvmTarget = "1.8"
+            }
+        }
+    }
+    
     jvm()
     
     sourceSets {
@@ -25,3 +34,14 @@ kotlin {
     }
 }
 
+android {
+    namespace = "com.fatec.merge_skills_kmp.shared"
+    compileSdk = libs.versions.android.compileSdk.get().toInt()
+    defaultConfig {
+        minSdk = libs.versions.android.minSdk.get().toInt()
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+}
