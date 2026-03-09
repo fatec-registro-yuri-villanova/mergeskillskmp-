@@ -6,12 +6,7 @@ import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import kotlinx.serialization.Serializable
-<<<<<<< HEAD
-=======
-import kotlinx.serialization.json.Json
-import io.github.jan.supabase.SupabaseClient
-import io.github.jan.supabase.postgrest.postgrest
->>>>>>> origin/aula-04
+
 
 fun main() {
     val port = System.getenv("PORT")?.toIntOrNull() ?: 8080
