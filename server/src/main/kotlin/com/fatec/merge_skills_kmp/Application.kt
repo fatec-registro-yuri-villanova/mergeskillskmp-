@@ -10,6 +10,7 @@ import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.postgrest.postgrest
 
 fun main() {
     val port = System.getenv("PORT")?.toIntOrNull() ?: 8080
@@ -24,9 +25,25 @@ data class HealthResponse(
 )
 
 fun Application.module() {
-    // Configurações do Supabase (obtidas via JVM args definidos no build.gradle.kts)
-    val supabaseUrl = System.getProperty("SUPABASE_URL")
-    val supabaseKey = System.getProperty("SUPABASE_KEY")
+    // Configurações do Supabase (tentativa 1: JVM args/Env Vars)
+    var supabaseUrl = System.getProperty("SUPABASE_URL") ?: System.getenv("SUPABASE_URL")
+    var supabaseKey = System.getProperty("SUPABASE_KEY") ?: System.getenv("SUPABASE_KEY")
+
+    // Fallback absoluto: Ler o arquivo local.properties diretamente (para IntelliJ direto no botão de Play)
+    if (supabaseUrl == null || supabaseKey == null) {
+        val properties = java.util.Properties()
+        val localPropFiles = listOf(
+            java.io.File("local.properties"),
+            java.io.File("../local.properties"),
+            java.io.File("../../local.properties")
+        )
+        val file = localPropFiles.firstOrNull { it.exists() }
+        if (file != null) {
+            properties.load(java.io.FileInputStream(file))
+            supabaseUrl = properties.getProperty("SUPABASE_URL")
+            supabaseKey = properties.getProperty("SUPABASE_KEY")
+        }
+    }
     
     var supabase: SupabaseClient? = null
     
@@ -56,6 +73,19 @@ fun Application.module() {
                     timestamp = System.currentTimeMillis()
                 )
             )
+        }
+
+        get("/api/courses") {
+            try {
+                // Remove safe call (?) so if supabase is null we get an exception, 
+                // and if postgrest fails due to RLS, RestException is thrown.
+                val supabaseClient = supabase ?: throw IllegalStateException("SupabaseClient is null. Check Environment Variables.")
+                val courses = supabaseClient.postgrest["courses"].select()
+                call.respondText(courses.data)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                call.respondText("{\"error\": \"${e.message}\"}", status = io.ktor.http.HttpStatusCode.InternalServerError)
+            }
         }
     }
 }
