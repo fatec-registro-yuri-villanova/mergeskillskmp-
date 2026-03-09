@@ -10,6 +10,7 @@ import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.postgrest.postgrest
 
 fun main() {
     val port = System.getenv("PORT")?.toIntOrNull() ?: 8080
@@ -56,6 +57,11 @@ fun Application.module() {
                     timestamp = System.currentTimeMillis()
                 )
             )
+        }
+
+        get("/api/courses") {
+            val courses = supabase?.postgrest?.from("courses")?.select()
+            call.respondText(courses?.data ?: "[]")
         }
     }
 }
