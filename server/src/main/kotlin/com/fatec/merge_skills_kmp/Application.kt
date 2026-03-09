@@ -9,7 +9,6 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import io.github.jan.supabase.SupabaseClient
 
 fun main() {
     val port = System.getenv("PORT")?.toIntOrNull() ?: 8080
@@ -24,16 +23,6 @@ data class HealthResponse(
 )
 
 fun Application.module() {
-    // Configurações do Supabase (obtidas via JVM args definidos no build.gradle.kts)
-    val supabaseUrl = System.getProperty("SUPABASE_URL")
-    val supabaseKey = System.getProperty("SUPABASE_KEY")
-    
-    var supabase: SupabaseClient? = null
-    
-    if (supabaseUrl != null && supabaseKey != null) {
-        supabase = createAppSupabaseClient(supabaseUrl, supabaseKey)
-    }
-
     // Pipeline configuration
     install(ContentNegotiation) {
         json(Json {
