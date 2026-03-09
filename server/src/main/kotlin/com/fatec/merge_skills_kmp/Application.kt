@@ -60,8 +60,16 @@ fun Application.module() {
         }
 
         get("/api/courses") {
-            val courses = supabase?.postgrest?.from("courses")?.select()
-            call.respondText(courses?.data ?: "[]")
+            try {
+                // Remove safe call (?) so if supabase is null we get an exception, 
+                // and if postgrest fails due to RLS, RestException is thrown.
+                val supabaseClient = supabase ?: throw IllegalStateException("SupabaseClient is null. Check Environment Variables.")
+                val courses = supabaseClient.postgrest["courses"].select()
+                call.respondText(courses.data)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                call.respondText("{\"error\": \"${e.message}\"}", status = io.ktor.http.HttpStatusCode.InternalServerError)
+            }
         }
     }
 }
