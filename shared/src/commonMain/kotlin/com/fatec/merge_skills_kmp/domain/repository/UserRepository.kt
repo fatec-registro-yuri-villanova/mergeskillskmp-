@@ -8,6 +8,6 @@ import com.fatec.merge_skills_kmp.domain.models.User
 interface UserRepository {
     suspend fun login(request: LoginRequest): Result<AuthResponse>
     suspend fun register(request: RegisterRequest): Result<AuthResponse>
-    suspend fun getUserProfile(userId: String): Result<User>
-    suspend fun updateStreak(userId: String): Result<User>
+    suspend fun getUserProfile(userId: Int): Result<User>
+    suspend fun updateStreak(userId: Int): Result<User>
 }
