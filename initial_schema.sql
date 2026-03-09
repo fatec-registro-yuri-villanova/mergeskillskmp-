@@ -1,66 +1,66 @@
--- Initial Schema for Merge Skills
--- Based on Technical Spec (Section 2)
+-- initial_schema.sql
+-- Auto-generated from existing remote database
 
--- 1. Users (Auth Profile & Gamification)
-CREATE TABLE IF NOT EXISTS users (
-    id UUID PRIMARY KEY,
-    username TEXT UNIQUE NOT NULL,
-    email TEXT UNIQUE NOT NULL,
-    password TEXT,
-    streak_count INT DEFAULT 0,
-    streak_freezes INT DEFAULT 0,
-    last_activity_at TIMESTAMPTZ,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW()
+CREATE TABLE public.courses (
+    id serial PRIMARY KEY,
+    title text NOT NULL,
+    description text,
+    icon text,
+    color text,
+    total_lessons integer DEFAULT 0,
+    created_at timestamp with time zone DEFAULT now()
 );
 
--- 2. Courses (Learning Tracks)
-CREATE TABLE IF NOT EXISTS courses (
-    id SERIAL PRIMARY KEY,
-    title TEXT NOT NULL,
-    description TEXT,
-    icon TEXT,
-    color TEXT,
-    total_lessons INT DEFAULT 0,
-    created_at TIMESTAMPTZ DEFAULT NOW()
+CREATE TABLE public.users (
+    id serial PRIMARY KEY,
+    username text NOT NULL,
+    email text,
+    name text,
+    password text,
+    profile_picture text,
+    streak_count integer DEFAULT 0,
+    last_activity_at timestamp with time zone,
+    streak_freezes integer DEFAULT 0,
+    longest_streak integer DEFAULT 0,
+    role text DEFAULT 'user'::text NOT NULL,
+    created_at timestamp with time zone DEFAULT now()
 );
 
--- 3. Lessons (Modules)
-CREATE TABLE IF NOT EXISTS lessons (
-    id SERIAL PRIMARY KEY,
-    course_id INT REFERENCES courses(id) ON DELETE CASCADE,
-    title TEXT NOT NULL,
-    description TEXT,
-    "order" INT DEFAULT 0,
-    created_at TIMESTAMPTZ DEFAULT NOW()
+CREATE TABLE public.lessons (
+    id serial PRIMARY KEY,
+    course_id integer REFERENCES public.courses(id),
+    title text NOT NULL,
+    description text,
+    "order" integer,
+    created_at timestamp with time zone DEFAULT now()
 );
 
--- 4. Questions (Quiz/Simulados)
-CREATE TABLE IF NOT EXISTS questions (
-    id SERIAL PRIMARY KEY,
-    lesson_id INT REFERENCES lessons(id) ON DELETE CASCADE,
-    question TEXT NOT NULL,
-    code TEXT,
-    options JSONB NOT NULL,
-    correct_answer INT NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT NOW()
+CREATE TABLE public.questions (
+    id serial PRIMARY KEY,
+    lesson_id integer REFERENCES public.lessons(id),
+    question text NOT NULL,
+    code text,
+    options jsonb DEFAULT '[]'::jsonb,
+    correct_answer integer,
+    "order" integer,
+    created_at timestamp with time zone DEFAULT now()
 );
 
--- 5. Lesson Progress (Tracker)
-CREATE TABLE IF NOT EXISTS lesson_progress (
-    id SERIAL PRIMARY KEY,
-    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-    lesson_id INT REFERENCES lessons(id) ON DELETE CASCADE,
-    is_completed BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMPTZ DEFAULT NOW()
+CREATE TABLE public.lesson_progress (
+    id serial PRIMARY KEY,
+    user_id integer REFERENCES public.users(id),
+    lesson_id integer REFERENCES public.lessons(id),
+    is_completed boolean DEFAULT false,
+    completed_at timestamp with time zone DEFAULT now(),
+    UNIQUE(user_id, lesson_id)
 );
 
--- 6. Question Attempts (History)
-CREATE TABLE IF NOT EXISTS question_attempts (
-    id SERIAL PRIMARY KEY,
-    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-    question_id INT REFERENCES questions(id) ON DELETE CASCADE,
-    is_correct BOOLEAN NOT NULL,
-    selected_option INT NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT NOW()
+CREATE TABLE public.question_attempts (
+    id serial PRIMARY KEY,
+    user_id integer REFERENCES public.users(id),
+    question_id integer REFERENCES public.questions(id),
+    selected_option integer,
+    is_correct boolean DEFAULT false,
+    timestamp timestamp with time zone DEFAULT now(),
+    UNIQUE(user_id, question_id)
 );

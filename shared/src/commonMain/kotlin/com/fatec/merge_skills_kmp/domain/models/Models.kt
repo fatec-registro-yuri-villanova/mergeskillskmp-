@@ -5,19 +5,24 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class User(
-    val id: String,
+    val id: Int,
     val username: String,
-    val email: String,
+    val email: String? = null,
+    val name: String? = null,
+    val password: String? = null,
+    @SerialName("profile_picture")
+    val profilePicture: String? = null,
     @SerialName("streak_count")
     val streakCount: Int = 0,
-    @SerialName("streak_freezes")
-    val streakFreezes: Int = 0,
     @SerialName("last_activity_at")
     val lastActivityAt: String? = null,
+    @SerialName("streak_freezes")
+    val streakFreezes: Int = 0,
+    @SerialName("longest_streak")
+    val longestStreak: Int = 0,
+    val role: String = "user",
     @SerialName("created_at")
-    val createdAt: String? = null,
-    @SerialName("updated_at")
-    val updatedAt: String? = null
+    val createdAt: String? = null
 )
 
 @Serializable
@@ -37,10 +42,10 @@ data class Course(
 data class Lesson(
     val id: Int,
     @SerialName("course_id")
-    val courseId: Int,
+    val courseId: Int? = null,
     val title: String,
     val description: String? = null,
-    val order: Int = 0,
+    val order: Int? = null,
     @SerialName("created_at")
     val createdAt: String? = null
 )
@@ -49,13 +54,14 @@ data class Lesson(
 data class Question(
     val id: Int,
     @SerialName("lesson_id")
-    val lessonId: Int,
+    val lessonId: Int? = null,
     val question: String,
     val code: String? = null,
     // Represented as a List of Strings parsing from JSONB
-    val options: List<String>,
+    val options: List<String>? = emptyList(),
     @SerialName("correct_answer")
-    val correctAnswer: Int,
+    val correctAnswer: Int? = null,
+    val order: Int? = null,
     @SerialName("created_at")
     val createdAt: String? = null
 )
@@ -64,26 +70,25 @@ data class Question(
 data class LessonProgress(
     val id: Int,
     @SerialName("user_id")
-    val userId: String,
+    val userId: Int? = null,
     @SerialName("lesson_id")
-    val lessonId: Int,
+    val lessonId: Int? = null,
     @SerialName("is_completed")
-    val isCompleted: Boolean = false,
-    @SerialName("created_at")
-    val createdAt: String? = null
+    val isCompleted: Boolean? = false,
+    @SerialName("completed_at")
+    val completedAt: String? = null
 )
 
 @Serializable
 data class QuestionAttempt(
     val id: Int,
     @SerialName("user_id")
-    val userId: String,
+    val userId: Int? = null,
     @SerialName("question_id")
-    val questionId: Int,
-    @SerialName("is_correct")
-    val isCorrect: Boolean,
+    val questionId: Int? = null,
     @SerialName("selected_option")
-    val selectedOption: Int,
-    @SerialName("created_at")
-    val createdAt: String? = null
+    val selectedOption: Int? = null,
+    @SerialName("is_correct")
+    val isCorrect: Boolean? = false,
+    val timestamp: String? = null
 )
