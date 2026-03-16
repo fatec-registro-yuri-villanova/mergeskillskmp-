@@ -92,3 +92,23 @@ data class QuestionAttempt(
     val isCorrect: Boolean? = false,
     val timestamp: String? = null
 )
+
+@Serializable
+data class LoginRequest(
+    val email: String,
+    val password: String? = null
+)
+
+@Serializable
+data class RegisterRequest(
+    val email: String,
+    val username: String? = null,
+    val password: String? = null
+)
+
+@Serializable
+data class AuthResponse(
+    @SerialName("access_token")
+    val accessToken: String,
+    val user: User? = null
+)
