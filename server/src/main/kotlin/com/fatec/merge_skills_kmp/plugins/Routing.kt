@@ -1,7 +1,8 @@
 package com.fatec.merge_skills_kmp.plugins
 
+import com.fatec.merge_skills_kmp.routes.courseRoutes
+import com.fatec.merge_skills_kmp.routes.lessonRoutes
 import io.github.jan.supabase.SupabaseClient
-import io.github.jan.supabase.postgrest.postgrest
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -16,14 +17,14 @@ fun Application.configureRouting(supabase: SupabaseClient?) {
             call.respondText("""{"status":"ok"}""", io.ktor.http.ContentType.Application.Json)
         }
 
-        get("/api/courses") {
-            try {
-                val supabaseClient = supabase ?: throw IllegalStateException("SupabaseClient is null. Check Environment Variables.")
-                val courses = supabaseClient.postgrest["courses"].select()
-                call.respondText(courses.data)
-            } catch (e: Exception) {
-                e.printStackTrace()
-                call.respondText("{\"error\": \"${e.message}\"}", status = io.ktor.http.HttpStatusCode.InternalServerError)
+        if (supabase != null) {
+            courseRoutes(supabase)
+            lessonRoutes(supabase)
+        } else {
+            route("/api") {
+                get("{...}") {
+                    call.respondText("SupabaseClient is null. Check Environment Variables.", status = io.ktor.http.HttpStatusCode.InternalServerError)
+                }
             }
         }
     }
