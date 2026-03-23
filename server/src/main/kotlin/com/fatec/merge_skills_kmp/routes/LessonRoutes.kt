@@ -40,7 +40,9 @@ fun Route.lessonRoutes(supabase: SupabaseClient) {
         post {
             try {
                 val lesson = call.receive<LessonInsert>()
-                val result = supabase.postgrest["lessons"].insert(lesson).decodeSingle<Lesson>()
+                val result = supabase.postgrest["lessons"].insert(lesson) {
+                    select()
+                }.decodeSingle<Lesson>()
                 call.respond(HttpStatusCode.Created, result)
             } catch (e: Exception) {
                 call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Falha ao criar lição: ${e.message}"))

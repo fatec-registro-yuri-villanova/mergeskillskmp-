@@ -135,7 +135,7 @@
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"id\": 1,\n  \"title\": \"Desenvolvimento Android Native\",\n  \"description\": \"Curso completo de PDMII\",\n  \"icon\": \"android\",\n  \"color\": \"#3DDC84\"\n}"
+        "text": "{\n  \"title\": \"Desenvolvimento Android Native\",\n  \"description\": \"Curso completo de PDMII\",\n  \"icon\": \"android\",\n  \"color\": \"#3DDC84\"\n}"
       },
       "parameters": [],
       "headers": [
@@ -201,7 +201,7 @@
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"id\": 101,\n  \"course_id\": 1,\n  \"title\": \"Introdução ao Ktor\",\n  \"description\": \"Setup inicial e roteamento\",\n  \"order\": 1\n}"
+        "text": "{\n  \"course_id\": 1,\n  \"title\": \"Introdução ao Ktor\",\n  \"description\": \"Setup inicial e roteamento\",\n  \"order\": 1\n}"
       },
       "parameters": [],
       "headers": [

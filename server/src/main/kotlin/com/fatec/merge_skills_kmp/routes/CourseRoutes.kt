@@ -27,7 +27,9 @@ fun Route.courseRoutes(supabase: SupabaseClient) {
         post {
             try {
                 val course = call.receive<CourseInsert>()
-                val result = supabase.postgrest["courses"].insert(course).decodeSingle<Course>()
+                val result = supabase.postgrest["courses"].insert(course) {
+                    select()
+                }.decodeSingle<Course>()
                 call.respond(HttpStatusCode.Created, result)
             } catch (e: Exception) {
                 call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Falha ao criar curso: ${e.message}"))
