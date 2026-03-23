@@ -1,6 +1,7 @@
 package com.fatec.merge_skills_kmp.routes
 
 import com.fatec.merge_skills_kmp.domain.models.Lesson
+import com.fatec.merge_skills_kmp.domain.models.LessonInsert
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.postgrest
 import io.ktor.http.HttpStatusCode
@@ -38,7 +39,7 @@ fun Route.lessonRoutes(supabase: SupabaseClient) {
     route("/api/lessons") {
         post {
             try {
-                val lesson = call.receive<Lesson>()
+                val lesson = call.receive<LessonInsert>()
                 val result = supabase.postgrest["lessons"].insert(lesson).decodeSingle<Lesson>()
                 call.respond(HttpStatusCode.Created, result)
             } catch (e: Exception) {

@@ -112,3 +112,20 @@ data class AuthResponse(
     val accessToken: String,
     val user: User? = null
 )
+
+@Serializable
+data class CourseInsert(
+    val title: String,
+    val description: String? = null,
+    val icon: String? = null,
+    val color: String? = null
+)
+
+@Serializable
+data class LessonInsert(
+    @SerialName("course_id")
+    val courseId: Int,
+    val title: String,
+    val description: String? = null,
+    val order: Int? = null
+)

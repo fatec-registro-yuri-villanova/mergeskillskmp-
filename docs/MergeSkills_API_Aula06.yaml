@@ -1,0 +1,96 @@
+openapi: 3.0.0
+info:
+  title: MergeSkills API (Aula 06)
+  description: Coleção de endpoints desenvolvidos até a Aula 06.
+  version: 1.0.0
+servers:
+  - url: http://0.0.0.0:8080
+    description: Servidor Local Ktor
+paths:
+  /:
+    get:
+      summary: Hello World Root
+      responses:
+        '200':
+          description: Server is running
+  /api/health:
+    get:
+      summary: Health Check
+      responses:
+        '200':
+          description: OK
+  /api/courses:
+    get:
+      summary: Listar Cursos
+      responses:
+        '200':
+          description: Array de Cursos
+    post:
+      summary: Criar Curso
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 1
+                title:
+                  type: string
+                  example: "Desenvolvimento Android Native"
+                description:
+                  type: string
+                  example: "Curso completo de PDMII"
+                icon:
+                  type: string
+                  example: "android"
+                color:
+                  type: string
+                  example: "#3DDC84"
+      responses:
+        '201':
+          description: Curso Criado
+  /api/courses/{id}/lessons:
+    get:
+      summary: Listar Lições de um Curso
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            example: 1
+          description: O ID numérico do Curso vinculado
+      responses:
+        '200':
+          description: Array de Lições
+  /api/lessons:
+    post:
+      summary: Criar Lição
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 101
+                course_id:
+                  type: integer
+                  example: 1
+                title:
+                  type: string
+                  example: "Introdução ao Ktor"
+                description:
+                  type: string
+                  example: "Setup inicial e roteamento"
+                order:
+                  type: integer
+                  example: 1
+      responses:
+        '201':
+          description: Lição Criada
