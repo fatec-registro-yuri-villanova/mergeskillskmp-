@@ -103,7 +103,10 @@ data class LoginRequest(
 data class RegisterRequest(
     val email: String,
     val username: String? = null,
-    val password: String? = null
+    val name: String? = null,
+    val password: String? = null,
+    @SerialName("profile_picture")
+    val profilePictureUrl: String? = null
 )
 
 @Serializable
@@ -128,4 +131,29 @@ data class LessonInsert(
     val title: String,
     val description: String? = null,
     val order: Int? = null
+)
+
+@Serializable
+data class UpdateUserRequest(
+    val name: String? = null,
+    @SerialName("profile_picture")
+    val profilePictureUrl: String? = null
+)
+
+@Serializable
+data class InsertUser(
+    val username: String,
+    val email: String,
+    val name: String? = null,
+    val password: String? = null,
+    @SerialName("profile_picture")
+    val profilePicture: String? = null,
+    val role: String = "user"
+)
+
+@Serializable
+data class ApiError(
+    val code: String,
+    val message: String,
+    val details: Map<String, String>? = null
 )

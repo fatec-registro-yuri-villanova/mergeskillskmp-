@@ -1,6 +1,7 @@
 package com.fatec.merge_skills_kmp.plugins
 
 import com.fatec.merge_skills_kmp.routes.courseRoutes
+import com.fatec.merge_skills_kmp.routes.authRoutes
 import com.fatec.merge_skills_kmp.routes.lessonRoutes
 import io.github.jan.supabase.SupabaseClient
 import io.ktor.server.application.*
@@ -18,6 +19,7 @@ fun Application.configureRouting(supabase: SupabaseClient?) {
         }
 
         if (supabase != null) {
+            authRoutes(supabase)
             courseRoutes(supabase)
             lessonRoutes(supabase)
         } else {
