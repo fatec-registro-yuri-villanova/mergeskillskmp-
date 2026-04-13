@@ -72,6 +72,16 @@ fun Route.adminRoutes(client: SupabaseClient) {
     }
 }
 
+// Workaround for PostgREST demanding all JSON array objects to have exactly matching keys.
+// Supabase-kt omits null fields, causing mismatch between questions with code and without code.
+private suspend fun insertQuestions(client: SupabaseClient, questions: List<QuestionInsert>) {
+    val qWithCode = questions.filter { it.code != null }
+    val qWithoutCode = questions.filter { it.code == null }
+    
+    if (qWithCode.isNotEmpty()) client.from("questions").insert(qWithCode)
+    if (qWithoutCode.isNotEmpty()) client.from("questions").insert(qWithoutCode)
+}
+
 private suspend fun seedUser(client: SupabaseClient) {
     try {
         val students = client.from("users").select {
@@ -123,8 +133,7 @@ private suspend fun seedCourse1(client: SupabaseClient, courseId: Int) {
             QuestionInsert(lesson1.id, "Qual será o resultado deste código?", "int x = 10;\ndouble y = x;\nSystem.out.println(y);", listOf("10", "10.0", "Erro de compilação", "null"), 1, 4),
             QuestionInsert(lesson1.id, "O que este código imprime?", "String nome = \"Java\";\nint versao = 21;\nSystem.out.println(nome + \" \" + versao);", listOf("Java21", "Java 21", "Erro de compilação", "null 21"), 1, 5)
         )
-        // Batch insert modernizado!
-        client.from("questions").insert(questions)
+        insertQuestions(client, questions)
     }
 
     val lesson2 = allLessons.find { it.order == 2 }!!
@@ -137,7 +146,7 @@ private suspend fun seedCourse1(client: SupabaseClient, courseId: Int) {
             QuestionInsert(lesson2.id, "Qual é a saída deste código?", "int i = 3;\nwhile (i > 0) {\n    System.out.print(i + \" \");\n    i--;\n}", listOf("3 2 1", "3 2 1 0", "2 1 0", "Erro"), 0, 4),
             QuestionInsert(lesson2.id, "O que acontece ao executar este código?", "for (int i = 0; i < 3; i++) {\n    if (i == 1) continue;\n    System.out.print(i + \" \");\n}", listOf("0 2", "0 1 2", "1 2", "0"), 0, 5)
         )
-        client.from("questions").insert(questions)
+        insertQuestions(client, questions)
     }
 
     val lesson3 = allLessons.find { it.order == 3 }!!
@@ -150,7 +159,7 @@ private suspend fun seedCourse1(client: SupabaseClient, courseId: Int) {
             QuestionInsert(lesson3.id, "O que este método retorna?", "public static boolean ehPar(int n) {\n    return n % 2 == 0;\n}\n// Chamada: ehPar(5)", listOf("true", "false", "0", "Erro"), 1, 4),
             QuestionInsert(lesson3.id, "Quantas vezes a mensagem é impressa?", "public static void repetir(String msg, int vezes) {\n    for (int i = 0; i < vezes; i++) {\n        System.out.println(msg);\n    }\n}\n// Chamada: repetir(\"Oi\", 3)", listOf("1", "2", "3", "0"), 2, 5)
         )
-        client.from("questions").insert(questions)
+        insertQuestions(client, questions)
     }
 
     val lesson4 = allLessons.find { it.order == 4 }!!
@@ -163,7 +172,7 @@ private suspend fun seedCourse1(client: SupabaseClient, courseId: Int) {
             QuestionInsert(lesson4.id, "O que este código imprime?", "class Carro {\n    String modelo;\n    Carro(String modelo) {\n        this.modelo = modelo;\n    }\n}\nCarro c = new Carro(\"Civic\");\nSystem.out.println(c.modelo);", listOf("Carro", "Civic", "null", "Erro"), 1, 4),
             QuestionInsert(lesson4.id, "Qual é a saída?", "class Animal {\n    String falar() { return \"...\"; }\n}\nclass Gato extends Animal {\n    String falar() { return \"Miau\"; }\n}\nAnimal a = new Gato();\nSystem.out.println(a.falar());", listOf("...", "Miau", "Erro", "null"), 1, 5)
         )
-        client.from("questions").insert(questions)
+        insertQuestions(client, questions)
     }
 }
 
@@ -192,7 +201,7 @@ private suspend fun seedCourse2(client: SupabaseClient, courseId: Int) {
             QuestionInsert(lesson5.id, "Qual é o tipo da variável `x`?", "val x = 10.5", listOf("Int", "Double", "Float", "Number"), 1, 4),
             QuestionInsert(lesson5.id, "O que acontece neste código?", "var nome: String = \"Kotlin\"\nnome = null", listOf("Erro de compilação", "Compila normal", "Imprime null", "Crash"), 0, 5)
         )
-        client.from("questions").insert(questions)
+        insertQuestions(client, questions)
     }
 
     val lesson6 = allLessons.find { it.order == 2 }!!
@@ -205,7 +214,7 @@ private suspend fun seedCourse2(client: SupabaseClient, courseId: Int) {
             QuestionInsert(lesson6.id, "Qual a saída?", "for (i in 1 until 4) print(i)", listOf("1234", "123", "12", "Erro"), 1, 4),
             QuestionInsert(lesson6.id, "O que imprime?", "var x = 3\nwhile(x > 0) {\n  print(x)\n  x--\n}", listOf("321", "3210", "210", "Infinito"), 0, 5)
         )
-        client.from("questions").insert(questions)
+        insertQuestions(client, questions)
     }
 
     val lesson7 = allLessons.find { it.order == 3 }!!
@@ -218,7 +227,7 @@ private suspend fun seedCourse2(client: SupabaseClient, courseId: Int) {
             QuestionInsert(lesson7.id, "Qual o tipo de retorno padrão se não especificado?", null, listOf("void", "null", "Unit", "Any"), 2, 4),
             QuestionInsert(lesson7.id, "O que este código faz?", "fun String.ola() = \"Olá \${'$'}this\"\nprintln(\"Mundo\".ola())", listOf("Olá Mundo", "Erro", "Mundo Ola", "Null"), 0, 5)
         )
-        client.from("questions").insert(questions)
+        insertQuestions(client, questions)
     }
 
     val lesson8 = allLessons.find { it.order == 4 }!!
@@ -231,7 +240,7 @@ private suspend fun seedCourse2(client: SupabaseClient, courseId: Int) {
             QuestionInsert(lesson8.id, "O que imprime?", "data class User(val nome: String)\nval u1 = User(\"Ana\")\nval u2 = User(\"Ana\")\nprintln(u1 == u2)", listOf("true", "false", "Erro", "Depende da memória"), 0, 4),
             QuestionInsert(lesson8.id, "Qual a saída?", "open class A\nclass B : A()\nprintln(B() is A)", listOf("true", "false", "Erro", "null"), 0, 5)
         )
-        client.from("questions").insert(questions)
+        insertQuestions(client, questions)
     }
 }
 
@@ -260,7 +269,7 @@ private suspend fun seedCourse3(client: SupabaseClient, courseId: Int) {
             QuestionInsert(lesson9.id, "Como se cria uma lista vazia?", null, listOf("list() ou []", "new List()", "Array()", "{}"), 0, 4),
             QuestionInsert(lesson9.id, "O que imprime?", "a = [1, 2, 3]\nb = a\nb.append(4)\nprint(len(a))", listOf("3", "4", "Erro", "0"), 1, 5)
         )
-        client.from("questions").insert(questions)
+        insertQuestions(client, questions)
     }
 
     val lesson10 = allLessons.find { it.order == 2 }!!
@@ -273,7 +282,7 @@ private suspend fun seedCourse3(client: SupabaseClient, courseId: Int) {
             QuestionInsert(lesson10.id, "Qual a saída?", "x = [i*2 for i in range(3)]\nprint(x)", listOf("[0, 1, 2]", "[0, 2, 4]", "[2, 4, 6]", "[1, 2, 3]"), 1, 4),
             QuestionInsert(lesson10.id, "O que imprime?", "i = 0\nwhile i < 3:\n    print(i, end=\"\")\n    i += 1", listOf("0 1 2", "012", "123", "01"), 1, 5)
         )
-        client.from("questions").insert(questions)
+        insertQuestions(client, questions)
     }
 
     val lesson11 = allLessons.find { it.order == 3 }!!
@@ -286,7 +295,7 @@ private suspend fun seedCourse3(client: SupabaseClient, courseId: Int) {
             QuestionInsert(lesson11.id, "Qual a saída?", "def f(x=[]):\n    x.append(1)\n    return x\nprint(f()); print(f())", listOf("[1] [1]", "[1] [1, 1]", "[1] []", "Erro"), 1, 4),
             QuestionInsert(lesson11.id, "O que args captura?", "def f(*args):\n    print(type(args))", listOf("list", "tuple", "dict", "set"), 1, 5)
         )
-        client.from("questions").insert(questions)
+        insertQuestions(client, questions)
     }
 
     val lesson12 = allLessons.find { it.order == 4 }!!
@@ -299,7 +308,7 @@ private suspend fun seedCourse3(client: SupabaseClient, courseId: Int) {
             QuestionInsert(lesson12.id, "Qual a saída?", "class Cao:\n    kind = \"canino\"\nc = Cao()\nc.kind = \"lobo\"\nprint(Cao.kind)", listOf("lobo", "canino", "Erro", "null"), 1, 4),
             QuestionInsert(lesson12.id, "O que imprime?", "class A:\n    def __str__(self): return \"A\"\nprint(A())", listOf("<Object A>", "A", "Endereço de memória", "Erro"), 1, 5)
         )
-        client.from("questions").insert(questions)
+        insertQuestions(client, questions)
     }
 }
 
@@ -328,20 +337,20 @@ private suspend fun seedCourse4(client: SupabaseClient, courseId: Int) {
             QuestionInsert(lesson13.id, "O que acontece?", "let x: string = \"TS\";\nx = 10;", listOf("Erro de compilação TS", "Funciona pois é JS", "Apenas warning", "Crash"), 0, 4),
             QuestionInsert(lesson13.id, "Qual a saída?", "const lista: number[] = [1, 2];\nlista.push(\"3\");", listOf("[1, 2, '3']", "Erro de tipo", "NaN", "null"), 1, 5)
         )
-        client.from("questions").insert(questions)
+        insertQuestions(client, questions)
     }
 
     val lesson14 = allLessons.find { it.order == 2 }!!
     val existingQ14 = client.from("questions").select { filter { eq("lesson_id", lesson14.id) } }.decodeList<Question>()
     if (existingQ14.isEmpty()) {
         val questions = listOf(
-            QuestionInsert(lesson14.id, "Qual loop itera sobre valores de um array?", null, listOf("for..in", "for..of", "foreach", "loop"), 1, 1),
+            QuestionInsert(lesson14.id, "Qual loop itera sobre valores de array?", null, listOf("for..in", "for..of", "foreach", "loop"), 1, 1),
             QuestionInsert(lesson14.id, "Qual método de array cria um novo array transformado?", null, listOf("forEach", "map", "filter", "reduce"), 1, 2),
             QuestionInsert(lesson14.id, "O que imprime?", "const a = [10, 20];\nfor (let i of a) console.log(i);", listOf("0 1", "10 20", "undefined", "Erro"), 1, 3),
             QuestionInsert(lesson14.id, "Qual a saída?", "let i = 0;\ndo { i++; } while (i < 0);\nconsole.log(i);", listOf("0", "1", "Erro", "-1"), 1, 4),
             QuestionInsert(lesson14.id, "O que filter faz?", "const nums = [1, 2, 3, 4];\nconsole.log(nums.filter(n => n % 2 === 0));", listOf("[1, 3]", "[2, 4]", "[true, false, true, false]", "[2]"), 1, 5)
         )
-        client.from("questions").insert(questions)
+        insertQuestions(client, questions)
     }
 
     val lesson15 = allLessons.find { it.order == 3 }!!
@@ -354,7 +363,7 @@ private suspend fun seedCourse4(client: SupabaseClient, courseId: Int) {
             QuestionInsert(lesson15.id, "Qual o tipo de retorno?", "function nada(): void { return 1; }", listOf("number", "void", "Erro TS", "undefined"), 2, 4),
             QuestionInsert(lesson15.id, "Generics servem para...", null, listOf("Criar componentes reutilizáveis e tipados", "Aumentar performance", "Ofuscar código", "Validar em runtime"), 0, 5)
         )
-        client.from("questions").insert(questions)
+        insertQuestions(client, questions)
     }
 
     val lesson16 = allLessons.find { it.order == 4 }!!
@@ -367,7 +376,7 @@ private suspend fun seedCourse4(client: SupabaseClient, courseId: Int) {
             QuestionInsert(lesson16.id, "O que imprime?", "class A { static x = 10 }\nconsole.log(A.x)", listOf("undefined", "10", "Erro", "null"), 1, 4),
             QuestionInsert(lesson16.id, "Qual a saída?", "interface User { name: string }\nconst u: User = { name: 10 };", listOf("{ name: 10 }", "Erro de tipo", "null", "undefined"), 1, 5)
         )
-        client.from("questions").insert(questions)
+        insertQuestions(client, questions)
     }
 }
 
