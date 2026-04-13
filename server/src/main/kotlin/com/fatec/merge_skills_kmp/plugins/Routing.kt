@@ -5,6 +5,7 @@ import com.fatec.merge_skills_kmp.routes.authRoutes
 import com.fatec.merge_skills_kmp.routes.lessonRoutes
 import com.fatec.merge_skills_kmp.routes.progressRoutes
 import com.fatec.merge_skills_kmp.routes.uploadRoutes
+import com.fatec.merge_skills_kmp.routes.adminRoutes
 import io.github.jan.supabase.SupabaseClient
 import io.ktor.server.application.*
 import io.ktor.server.response.*
@@ -26,6 +27,7 @@ fun Application.configureRouting(supabase: SupabaseClient?) {
             lessonRoutes(supabase)
             progressRoutes(supabase)
             uploadRoutes(supabase)
+            adminRoutes(supabase)
         } else {
             route("/api") {
                 get("{...}") {

@@ -18,3 +18,15 @@ data class Question(
     @SerialName("created_at")
     val createdAt: String? = null
 )
+
+@Serializable
+data class QuestionInsert(
+    @SerialName("lesson_id")
+    val lessonId: Int,
+    val question: String,
+    val code: String? = null,
+    val options: List<String>,
+    @SerialName("correct_answer")
+    val correctAnswer: Int,
+    val order: Int
+)
