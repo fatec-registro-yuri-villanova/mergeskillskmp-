@@ -47,15 +47,20 @@ fun Route.adminRoutes(client: SupabaseClient) {
                     CourseInsert("TypeScript", "Construa aplicações com tipagem segura usando TypeScript", "code", "#3178C6")
                 ).filter { !existingTitles.contains(it.title) }
 
+                val allCourses = existingCourses.toMutableList()
+
                 if (coursesToInsert.isNotEmpty()) {
                     val insertedCourses = client.from("courses").insert(coursesToInsert) { select() }.decodeList<Course>()
-                    insertedCourses.forEach { course ->
-                        when (course.title) {
-                            "Java Icaro" -> seedCourse1(client, course.id)
-                            "Kotlin" -> seedCourse2(client, course.id)
-                            "Python" -> seedCourse3(client, course.id)
-                            "TypeScript" -> seedCourse4(client, course.id)
-                        }
+                    allCourses.addAll(insertedCourses)
+                }
+
+                // 3. Process each course idempotently
+                allCourses.forEach { course ->
+                    when (course.title) {
+                        "Java Icaro" -> seedCourse1(client, course.id)
+                        "Kotlin" -> seedCourse2(client, course.id)
+                        "Python" -> seedCourse3(client, course.id)
+                        "TypeScript" -> seedCourse4(client, course.id)
                     }
                 }
 
@@ -94,16 +99,21 @@ private suspend fun seedUser(client: SupabaseClient) {
 }
 
 private suspend fun seedCourse1(client: SupabaseClient, courseId: Int) {
-    val lessons = listOf(
+    val existingLessons = try { client.from("lessons").select { filter { eq("course_id", courseId) } }.decodeList<Lesson>() } catch(e: Exception) { emptyList() }
+    val lessonsToInsert = listOf(
         LessonInsert(courseId, "Variáveis", "Tipos de dados, declarações e inicialização em Java", 1),
         LessonInsert(courseId, "Laços de Repetição", "Domine for, while e do-while em Java", 2),
         LessonInsert(courseId, "Funções", "Métodos, parâmetros e tipos de retorno", 3),
         LessonInsert(courseId, "Classes", "Programação orientada a objetos com classes Java", 4)
-    )
+    ).filter { newLesson -> existingLessons.none { it.order == newLesson.order } }
 
-    val insertedLessons = client.from("lessons").insert(lessons) { select() }.decodeList<Lesson>()
+    val allLessons = existingLessons.toMutableList()
+    if (lessonsToInsert.isNotEmpty()) {
+        val insertedLessons = client.from("lessons").insert(lessonsToInsert) { select() }.decodeList<Lesson>()
+        allLessons.addAll(insertedLessons)
+    }
 
-    val lesson1 = insertedLessons.find { it.order == 1 }!!
+    val lesson1 = allLessons.find { it.order == 1 }!!
     val existingQ1 = client.from("questions").select { filter { eq("lesson_id", lesson1.id) } }.decodeList<Question>()
     if (existingQ1.isEmpty()) {
         val questions = listOf(
@@ -117,7 +127,7 @@ private suspend fun seedCourse1(client: SupabaseClient, courseId: Int) {
         client.from("questions").insert(questions)
     }
 
-    val lesson2 = insertedLessons.find { it.order == 2 }!!
+    val lesson2 = allLessons.find { it.order == 2 }!!
     val existingQ2 = client.from("questions").select { filter { eq("lesson_id", lesson2.id) } }.decodeList<Question>()
     if (existingQ2.isEmpty()) {
         val questions = listOf(
@@ -130,7 +140,7 @@ private suspend fun seedCourse1(client: SupabaseClient, courseId: Int) {
         client.from("questions").insert(questions)
     }
 
-    val lesson3 = insertedLessons.find { it.order == 3 }!!
+    val lesson3 = allLessons.find { it.order == 3 }!!
     val existingQ3 = client.from("questions").select { filter { eq("lesson_id", lesson3.id) } }.decodeList<Question>()
     if (existingQ3.isEmpty()) {
         val questions = listOf(
@@ -143,7 +153,7 @@ private suspend fun seedCourse1(client: SupabaseClient, courseId: Int) {
         client.from("questions").insert(questions)
     }
 
-    val lesson4 = insertedLessons.find { it.order == 4 }!!
+    val lesson4 = allLessons.find { it.order == 4 }!!
     val existingQ4 = client.from("questions").select { filter { eq("lesson_id", lesson4.id) } }.decodeList<Question>()
     if (existingQ4.isEmpty()) {
         val questions = listOf(
@@ -158,16 +168,21 @@ private suspend fun seedCourse1(client: SupabaseClient, courseId: Int) {
 }
 
 private suspend fun seedCourse2(client: SupabaseClient, courseId: Int) {
-    val lessons = listOf(
+    val existingLessons = try { client.from("lessons").select { filter { eq("course_id", courseId) } }.decodeList<Lesson>() } catch(e: Exception) { emptyList() }
+    val lessonsToInsert = listOf(
         LessonInsert(courseId, "Variáveis", "Entenda val, var e inferência de tipo em Kotlin", 1),
         LessonInsert(courseId, "Laços de Repetição", "Explore for, while e loops baseados em range", 2),
         LessonInsert(courseId, "Funções", "Funções, lambdas e extensões em Kotlin", 3),
         LessonInsert(courseId, "Classes", "Data classes, sealed classes e herança", 4)
-    )
+    ).filter { newLesson -> existingLessons.none { it.order == newLesson.order } }
 
-    val insertedLessons = client.from("lessons").insert(lessons) { select() }.decodeList<Lesson>()
+    val allLessons = existingLessons.toMutableList()
+    if (lessonsToInsert.isNotEmpty()) {
+        val insertedLessons = client.from("lessons").insert(lessonsToInsert) { select() }.decodeList<Lesson>()
+        allLessons.addAll(insertedLessons)
+    }
 
-    val lesson5 = insertedLessons.find { it.order == 1 }!!
+    val lesson5 = allLessons.find { it.order == 1 }!!
     val existingQ5 = client.from("questions").select { filter { eq("lesson_id", lesson5.id) } }.decodeList<Question>()
     if (existingQ5.isEmpty()) {
         val questions = listOf(
@@ -180,7 +195,7 @@ private suspend fun seedCourse2(client: SupabaseClient, courseId: Int) {
         client.from("questions").insert(questions)
     }
 
-    val lesson6 = insertedLessons.find { it.order == 2 }!!
+    val lesson6 = allLessons.find { it.order == 2 }!!
     val existingQ6 = client.from("questions").select { filter { eq("lesson_id", lesson6.id) } }.decodeList<Question>()
     if (existingQ6.isEmpty()) {
         val questions = listOf(
@@ -193,7 +208,7 @@ private suspend fun seedCourse2(client: SupabaseClient, courseId: Int) {
         client.from("questions").insert(questions)
     }
 
-    val lesson7 = insertedLessons.find { it.order == 3 }!!
+    val lesson7 = allLessons.find { it.order == 3 }!!
     val existingQ7 = client.from("questions").select { filter { eq("lesson_id", lesson7.id) } }.decodeList<Question>()
     if (existingQ7.isEmpty()) {
         val questions = listOf(
@@ -206,7 +221,7 @@ private suspend fun seedCourse2(client: SupabaseClient, courseId: Int) {
         client.from("questions").insert(questions)
     }
 
-    val lesson8 = insertedLessons.find { it.order == 4 }!!
+    val lesson8 = allLessons.find { it.order == 4 }!!
     val existingQ8 = client.from("questions").select { filter { eq("lesson_id", lesson8.id) } }.decodeList<Question>()
     if (existingQ8.isEmpty()) {
         val questions = listOf(
@@ -221,16 +236,21 @@ private suspend fun seedCourse2(client: SupabaseClient, courseId: Int) {
 }
 
 private suspend fun seedCourse3(client: SupabaseClient, courseId: Int) {
-    val lessons = listOf(
+    val existingLessons = try { client.from("lessons").select { filter { eq("course_id", courseId) } }.decodeList<Lesson>() } catch(e: Exception) { emptyList() }
+    val lessonsToInsert = listOf(
         LessonInsert(courseId, "Variáveis", "Tipagem dinâmica, atribuições e tipos de dados", 1),
         LessonInsert(courseId, "Laços de Repetição", "for-in, while e list comprehensions", 2),
         LessonInsert(courseId, "Funções", "def, parâmetros padrão, *args e **kwargs", 3),
         LessonInsert(courseId, "Classes", "POO em Python, __init__, herança e métodos especiais", 4)
-    )
+    ).filter { newLesson -> existingLessons.none { it.order == newLesson.order } }
 
-    val insertedLessons = client.from("lessons").insert(lessons) { select() }.decodeList<Lesson>()
+    val allLessons = existingLessons.toMutableList()
+    if (lessonsToInsert.isNotEmpty()) {
+        val insertedLessons = client.from("lessons").insert(lessonsToInsert) { select() }.decodeList<Lesson>()
+        allLessons.addAll(insertedLessons)
+    }
 
-    val lesson9 = insertedLessons.find { it.order == 1 }!!
+    val lesson9 = allLessons.find { it.order == 1 }!!
     val existingQ9 = client.from("questions").select { filter { eq("lesson_id", lesson9.id) } }.decodeList<Question>()
     if (existingQ9.isEmpty()) {
         val questions = listOf(
@@ -243,7 +263,7 @@ private suspend fun seedCourse3(client: SupabaseClient, courseId: Int) {
         client.from("questions").insert(questions)
     }
 
-    val lesson10 = insertedLessons.find { it.order == 2 }!!
+    val lesson10 = allLessons.find { it.order == 2 }!!
     val existingQ10 = client.from("questions").select { filter { eq("lesson_id", lesson10.id) } }.decodeList<Question>()
     if (existingQ10.isEmpty()) {
         val questions = listOf(
@@ -256,7 +276,7 @@ private suspend fun seedCourse3(client: SupabaseClient, courseId: Int) {
         client.from("questions").insert(questions)
     }
 
-    val lesson11 = insertedLessons.find { it.order == 3 }!!
+    val lesson11 = allLessons.find { it.order == 3 }!!
     val existingQ11 = client.from("questions").select { filter { eq("lesson_id", lesson11.id) } }.decodeList<Question>()
     if (existingQ11.isEmpty()) {
         val questions = listOf(
@@ -269,7 +289,7 @@ private suspend fun seedCourse3(client: SupabaseClient, courseId: Int) {
         client.from("questions").insert(questions)
     }
 
-    val lesson12 = insertedLessons.find { it.order == 4 }!!
+    val lesson12 = allLessons.find { it.order == 4 }!!
     val existingQ12 = client.from("questions").select { filter { eq("lesson_id", lesson12.id) } }.decodeList<Question>()
     if (existingQ12.isEmpty()) {
         val questions = listOf(
@@ -284,16 +304,21 @@ private suspend fun seedCourse3(client: SupabaseClient, courseId: Int) {
 }
 
 private suspend fun seedCourse4(client: SupabaseClient, courseId: Int) {
-    val lessons = listOf(
+    val existingLessons = try { client.from("lessons").select { filter { eq("course_id", courseId) } }.decodeList<Lesson>() } catch(e: Exception) { emptyList() }
+    val lessonsToInsert = listOf(
         LessonInsert(courseId, "Variáveis", "let, const, anotações de tipo e inferência", 1),
         LessonInsert(courseId, "Laços de Repetição", "for, for-of, while e métodos de array", 2),
         LessonInsert(courseId, "Funções", "Funções tipadas, arrow functions e generics", 3),
         LessonInsert(courseId, "Classes", "Classes, interfaces e modificadores de acesso", 4)
-    )
+    ).filter { newLesson -> existingLessons.none { it.order == newLesson.order } }
 
-    val insertedLessons = client.from("lessons").insert(lessons) { select() }.decodeList<Lesson>()
+    val allLessons = existingLessons.toMutableList()
+    if (lessonsToInsert.isNotEmpty()) {
+        val insertedLessons = client.from("lessons").insert(lessonsToInsert) { select() }.decodeList<Lesson>()
+        allLessons.addAll(insertedLessons)
+    }
 
-    val lesson13 = insertedLessons.find { it.order == 1 }!!
+    val lesson13 = allLessons.find { it.order == 1 }!!
     val existingQ13 = client.from("questions").select { filter { eq("lesson_id", lesson13.id) } }.decodeList<Question>()
     if (existingQ13.isEmpty()) {
         val questions = listOf(
@@ -306,7 +331,7 @@ private suspend fun seedCourse4(client: SupabaseClient, courseId: Int) {
         client.from("questions").insert(questions)
     }
 
-    val lesson14 = insertedLessons.find { it.order == 2 }!!
+    val lesson14 = allLessons.find { it.order == 2 }!!
     val existingQ14 = client.from("questions").select { filter { eq("lesson_id", lesson14.id) } }.decodeList<Question>()
     if (existingQ14.isEmpty()) {
         val questions = listOf(
@@ -319,7 +344,7 @@ private suspend fun seedCourse4(client: SupabaseClient, courseId: Int) {
         client.from("questions").insert(questions)
     }
 
-    val lesson15 = insertedLessons.find { it.order == 3 }!!
+    val lesson15 = allLessons.find { it.order == 3 }!!
     val existingQ15 = client.from("questions").select { filter { eq("lesson_id", lesson15.id) } }.decodeList<Question>()
     if (existingQ15.isEmpty()) {
         val questions = listOf(
@@ -332,7 +357,7 @@ private suspend fun seedCourse4(client: SupabaseClient, courseId: Int) {
         client.from("questions").insert(questions)
     }
 
-    val lesson16 = insertedLessons.find { it.order == 4 }!!
+    val lesson16 = allLessons.find { it.order == 4 }!!
     val existingQ16 = client.from("questions").select { filter { eq("lesson_id", lesson16.id) } }.decodeList<Question>()
     if (existingQ16.isEmpty()) {
         val questions = listOf(
@@ -345,3 +370,4 @@ private suspend fun seedCourse4(client: SupabaseClient, courseId: Int) {
         client.from("questions").insert(questions)
     }
 }
+
