@@ -17,6 +17,14 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class SeedResponse(val message: String, val new_courses_inserted: Int)
+
+@Serializable
+data class SeedErrorResponse(val error: String)
+
 fun Route.adminRoutes(client: SupabaseClient) {
     route("/admin") {
         post("/seed") {
@@ -51,9 +59,9 @@ fun Route.adminRoutes(client: SupabaseClient) {
                     }
                 }
 
-                call.respond(HttpStatusCode.OK, mapOf("message" to "Database seeded successfully", "new_courses_inserted" to coursesToInsert.size))
+                call.respond(HttpStatusCode.OK, SeedResponse(message = "Database seeded successfully", new_courses_inserted = coursesToInsert.size))
             } catch (e: Exception) {
-                call.respond(HttpStatusCode.InternalServerError, mapOf("error" to "Failed to seed database: ${e.message}"))
+                call.respond(HttpStatusCode.InternalServerError, SeedErrorResponse(error = "Failed to seed database: ${e.message}"))
             }
         }
     }
