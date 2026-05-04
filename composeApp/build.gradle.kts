@@ -50,6 +50,9 @@ kotlin {
             dependencies {
                 implementation(compose.desktop.currentOs)
                 implementation(libs.kotlinx.coroutines.swing)
+                implementation(libs.koin.core)
+                implementation(libs.multiplatform.settings)
+                implementation(libs.ktor.client.cio)
             }
         }
     }

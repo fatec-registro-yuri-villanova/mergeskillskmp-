@@ -29,6 +29,7 @@ postgresql = "42.7.3"
 koin-core = "3.5.3"
 koin-android = "3.5.3"
 koin-androidx-compose = "3.5.3"
+multiplatform-settings = "1.1.1"
 ktor-server-rate-limit = "2.3.8"
 coil3 = "3.0.0-alpha06"
 coroutines = "1.8.0"
@@ -37,6 +38,7 @@ coroutines = "1.8.0"
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin-core" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin-android" }
 koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin-androidx-compose" }
+multiplatform-settings = { module = "com.russhwolf:multiplatform-settings", version.ref = "multiplatform-settings" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil3" }
 coil-network-ktor = { module = "io.coil-kt.coil3:coil-network-ktor", version.ref = "coil3" }
 ktor-server-rate-limit = { module = "io.ktor:ktor-server-rate-limit", version.ref = "ktor-server-rate-limit" }
