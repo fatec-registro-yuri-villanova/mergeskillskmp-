@@ -56,7 +56,7 @@ fun Route.authRoutes(supabase: SupabaseClient) {
 
             if (users.isNotEmpty()) {
                 val user = users.first()
-                call.respond(AuthResponse(accessToken = "", user = user))
+                call.respond(AuthResponse(token = "", user = user))
             } else {
                 call.respond(
                     HttpStatusCode.Unauthorized,
@@ -97,7 +97,7 @@ fun Route.authRoutes(supabase: SupabaseClient) {
                 select() 
             }.decodeSingle<User>()
 
-            call.respond(AuthResponse(accessToken = "", user = insertedUser))
+            call.respond(AuthResponse(token = "", user = insertedUser))
         }
 
         put("/users/{userId}") {
@@ -125,7 +125,7 @@ fun Route.authRoutes(supabase: SupabaseClient) {
                     select() // To return the updated row
                 }.decodeSingle<User>()
 
-                call.respond(AuthResponse(accessToken = "", user = updatedUser))
+                call.respond(AuthResponse(token = "", user = updatedUser))
             } catch (e: Exception) {
                 call.respond(
                     HttpStatusCode.InternalServerError,

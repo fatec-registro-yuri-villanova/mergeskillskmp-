@@ -21,7 +21,6 @@ data class RegisterRequest(
 
 @Serializable
 data class AuthResponse(
-    @SerialName("access_token")
-    val accessToken: String,
+    val token: String? = null,
     val user: User? = null
 )
