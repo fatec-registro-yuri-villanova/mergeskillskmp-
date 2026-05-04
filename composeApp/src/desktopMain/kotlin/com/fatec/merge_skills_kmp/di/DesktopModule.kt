@@ -25,7 +25,7 @@ val desktopAppModule = module {
     single<UserRepository> {
         KtorUserRepository(
             client = get(),
-            baseUrl = "http://localhost:8080"
+            baseUrl = "https://lddm-api-inicial-1.onrender.com"
         )
     }
 
